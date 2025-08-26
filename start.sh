@@ -9,7 +9,9 @@ airflow users create \
     --firstname Admin \
     --lastname User \
     --role Admin \
-    --email admin@example.com || true
+    --email admin@example.com \
+    --password admin
+
 
 # Khởi chạy Scheduler ở background
 airflow scheduler &
