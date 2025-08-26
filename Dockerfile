@@ -9,7 +9,7 @@ FROM python:3.11-slim
 
 # Thiết lập AIRFLOW_HOME
 ENV AIRFLOW_HOME=/usr/local/airflow
-ENV PATH=$AIRFLOW_HOME/.local/bin:$PATH
+ENV PATH=/usr/local/bin:$AIRFLOW_HOME/.local/bin:$PATH
 
 # Cài các dependencies OS cần thiết
 RUN apt-get update && apt-get install -y --no-install-recommends \
