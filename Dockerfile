@@ -11,4 +11,4 @@ RUN python -m venv dbt_venv && source dbt_venv/bin/activate && \
 # RUN python -m venv dbt_venv && source dbt_venv/bin/activate && \
 #     pip install --no-cache-dir dbt-snowflake && deactivate
 
-CMD ["airflow", "webserver", "-p", "8080"]
+# CMD ["airflow", "webserver", "-p", "8080"]
