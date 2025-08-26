@@ -16,6 +16,5 @@ fi
 
 # --- Chạy Scheduler
 /usr/local/bin/airflow scheduler &
-
 # --- Chạy Webserver
 exec /usr/local/bin/airflow webserver --host 0.0.0.0 --port $PORT
