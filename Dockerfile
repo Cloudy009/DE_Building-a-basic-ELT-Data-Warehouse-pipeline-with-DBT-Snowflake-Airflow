@@ -16,24 +16,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential libpq-dev curl git \
     && rm -rf /var/lib/apt/lists/*
 
-# Cài Airflow global + Snowflake provider
+# Cài đặt Airflow và các providers (bao gồm cả postgres và snowflake)
+# Lưu ý: Lệnh này phải chạy ngoài môi trường ảo
 RUN pip install --no-cache-dir "apache-airflow[postgres,celery]==2.9.3" \
-    && pip install --no-cache-dir "apache-airflow-providers-snowflake"
+    "apache-airflow-providers-snowflake"
 
 # Tạo venv riêng cho DBT
 RUN python -m venv $AIRFLOW_HOME/dbt_venv
-RUN /bin/bash -c "source $AIRFLOW_HOME/dbt_venv/bin/activate && pip install --no-cache-dir dbt-snowflake && deactivate"
+
+# Copy requirements.txt và dags/
+COPY requirements.txt $AIRFLOW_HOME/requirements.txt
+COPY dags/ $AIRFLOW_HOME/dags/
+
+# Cài đặt dependencies cho DBT vào môi trường ảo
+RUN /bin/bash -c "source $AIRFLOW_HOME/dbt_venv/bin/activate && \
+    pip install --no-cache-dir dbt-snowflake -r $AIRFLOW_HOME/requirements.txt && deactivate"
 
 # Tạo các thư mục Airflow
-RUN mkdir -p $AIRFLOW_HOME/dags $AIRFLOW_HOME/logs $AIRFLOW_HOME/plugins
-
-# Copy DAGs và requirements.txt (nếu có)
-COPY dags/ $AIRFLOW_HOME/dags/
-COPY requirements.txt $AIRFLOW_HOME/requirements.txt
-
-# Nếu requirements.txt có package DBT → cài trong venv DBT
-RUN /bin/bash -c "source $AIRFLOW_HOME/dbt_venv/bin/activate && \
-    pip install --no-cache-dir -r $AIRFLOW_HOME/requirements.txt && deactivate"
+RUN mkdir -p $AIRFLOW_HOME/logs $AIRFLOW_HOME/plugins
 
 # Entrypoint script
 COPY start.sh /start.sh
