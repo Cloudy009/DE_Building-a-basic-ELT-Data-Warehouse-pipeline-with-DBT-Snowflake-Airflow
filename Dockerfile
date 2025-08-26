@@ -1,3 +1,9 @@
+# # Chạy local
+# FROM quay.io/astronomer/astro-runtime:10.3.0
+
+# RUN python -m venv dbt_venv && source dbt_venv/bin/activate && \
+#     pip install --no-cache-dir dbt-snowflake && deactivate
+
 # Base image nhẹ hơn Astro Runtime
 FROM python:3.11-slim
 
@@ -13,19 +19,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Tạo thư mục Airflow
+# Cài Airflow 2.9.3
+RUN pip install --no-cache-dir "apache-airflow[postgres,celery]==2.9.3"
+
+# Tạo virtualenv cho DBT
+RUN python -m venv /usr/local/airflow/dbt_venv
+RUN /bin/bash -c "source /usr/local/airflow/dbt_venv/bin/activate && pip install --no-cache-dir dbt-snowflake && deactivate"
+
+# Tạo các thư mục Airflow
 RUN mkdir -p $AIRFLOW_HOME/dags $AIRFLOW_HOME/logs $AIRFLOW_HOME/plugins
 
-# Copy requirements
+# Copy DAGs, DBT project và requirements.txt
+COPY dags/ $AIRFLOW_HOME/dags/
 COPY requirements.txt $AIRFLOW_HOME/requirements.txt
 
-# Cài tất cả packages từ requirements.txt
-RUN pip install --no-cache-dir -r $AIRFLOW_HOME/requirements.txt
+# Cài thêm packages từ requirements.txt (cả Airflow provider và DBT)
+RUN /bin/bash -c "source /usr/local/airflow/dbt_venv/bin/activate && \
+    pip install --no-cache-dir -r $AIRFLOW_HOME/requirements.txt && deactivate"
 
-# Copy DAGs và DBT project
-COPY dags/ $AIRFLOW_HOME/dags/
-
-# Copy script khởi chạy
+# Entrypoint script
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
