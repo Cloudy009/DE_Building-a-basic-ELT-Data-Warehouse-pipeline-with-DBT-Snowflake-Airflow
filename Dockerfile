@@ -1,23 +1,42 @@
-## Chạy local
+# # Chạy local
 # FROM quay.io/astronomer/astro-runtime:10.3.0
 
 # RUN python -m venv dbt_venv && source dbt_venv/bin/activate && \
 #     pip install --no-cache-dir dbt-snowflake && deactivate
 
-# RUN chmod +x start.sh
+# Base image nhẹ hơn Astro Runtime
+# Base image nhẹ hơn Astro Runtime
+FROM python:3.11-slim
 
+# Thiết lập AIRFLOW_HOME
+ENV AIRFLOW_HOME=/usr/local/airflow
+ENV PATH=$AIRFLOW_HOME/.local/bin:$PATH
 
-FROM quay.io/astronomer/astro-runtime:10.3.0
+# Cài các dependencies OS cần thiết
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-# Cài thêm dbt-snowflake (cài trực tiếp vào venv chính của Astro)
-RUN pip install --no-cache-dir dbt-snowflake
+# Cài Airflow
+RUN pip install --no-cache-dir "apache-airflow[postgres,celery]==2.9.3"
 
-# Copy code vào thư mục Airflow home (theo chuẩn Astro)
-WORKDIR /usr/local/airflow
-COPY . .
+# Tạo virtualenv cho DBT
+RUN python -m venv /usr/local/airflow/dbt_venv
+RUN /bin/bash -c "source /usr/local/airflow/dbt_venv/bin/activate && pip install --no-cache-dir dbt-snowflake && deactivate"
 
-# Copy script start.sh vào bin và set quyền thực thi
-COPY --chmod=755 start.sh /usr/local/bin/start.sh
+# Tạo các thư mục Airflow
+RUN mkdir -p $AIRFLOW_HOME/dags $AIRFLOW_HOME/logs $AIRFLOW_HOME/plugins
 
-# Lệnh mặc định khi container start
-CMD ["start.sh"]
+# Copy DAGs và DBT project
+COPY dags/ $AIRFLOW_HOME/dags/
+
+# Entrypoint script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# CMD chạy entrypoint (Scheduler + Webserver)
+CMD ["/start.sh"]
+
