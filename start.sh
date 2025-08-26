@@ -3,15 +3,16 @@
 # Init DB metadata nếu chưa có
 airflow db init
 
-# Tạo user admin (chỉ tạo nếu chưa tồn tại)
-airflow users create \
-    --username admin \
-    --firstname Admin \
-    --lastname User \
-    --role Admin \
-    --email admin@example.com \
-    --password admin
-
+# Tạo user admin nếu chưa tồn tại, lấy thông tin từ biến môi trường
+if ! airflow users list | grep -q "$AIRFLOW_ADMIN_USERNAME"; then
+    airflow users create \
+        --username "$AIRFLOW_ADMIN_USERNAME" \
+        --firstname "$AIRFLOW_ADMIN_FIRSTNAME" \
+        --lastname "$AIRFLOW_ADMIN_LASTNAME" \
+        --role Admin \
+        --email "$AIRFLOW_ADMIN_EMAIL" \
+        --password "$AIRFLOW_ADMIN_PASSWORD"
+fi
 
 # Khởi chạy Scheduler ở background
 airflow scheduler &
