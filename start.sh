@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# --- Khởi tạo DB Airflow
-/usr/local/bin/airflow db init
+airflow db init
 
-# --- Tạo user admin nếu chưa tồn tại
-if ! /usr/local/bin/airflow users list | grep -q "$AIRFLOW_ADMIN_USERNAME"; then
-    /usr/local/bin/airflow users create \
+if ! airflow users list | grep -q "$AIRFLOW_ADMIN_USERNAME"; then
+    airflow users create \
         --username "$AIRFLOW_ADMIN_USERNAME" \
         --firstname "$AIRFLOW_ADMIN_FIRSTNAME" \
         --lastname "$AIRFLOW_ADMIN_LASTNAME" \
@@ -14,7 +12,6 @@ if ! /usr/local/bin/airflow users list | grep -q "$AIRFLOW_ADMIN_USERNAME"; then
         --password "$AIRFLOW_ADMIN_PASSWORD"
 fi
 
-# --- Chạy Scheduler
-/usr/local/bin/airflow scheduler &
-# --- Chạy Webserver
-exec /usr/local/bin/airflow webserver --host 0.0.0.0 --port $PORT
+airflow scheduler &
+
+exec airflow webserver --host 0.0.0.0 --port $PORT
