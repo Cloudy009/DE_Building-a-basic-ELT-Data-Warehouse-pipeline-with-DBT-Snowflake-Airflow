@@ -210,3 +210,4 @@ The Astronomer CLI is maintained by the Astronomer team.
 For issues: contact Astronomer support.  
 "# DE_Building-a-basic-ELT-Data-Warehouse-pipeline-with-DBT-Snowflake-Airflow" 
 "# DE_Building-a-basic-ELT-Data-Warehouse-pipeline-with-DBT-Snowflake-Airflow" 
+"# DE-test" 
