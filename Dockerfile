@@ -20,7 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Cài Airflow 2.9.3
-RUN pip install --no-cache-dir "apache-airflow[postgres,celery]==2.9.3"
+RUN pip install --no-cache-dir "apache-airflow[postgres,celery]==2.9.3" \
+    && pip install --no-cache-dir "apache-airflow-providers-snowflake"
+
 
 # Tạo virtualenv cho DBT
 RUN python -m venv /usr/local/airflow/dbt_venv
