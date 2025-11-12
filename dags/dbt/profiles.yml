@@ -1,13 +1,13 @@
 data_pipeline_with_dbt_snowflake:
   outputs:
     dev:
-      account: sf19238.ap-southeast-1
-      database: dbt_db
-      insecure_mode: false
-      password: Vytao123456789!
-      role: dbt_role
-      schema: dbt_schema
-      type: snowflake
-      user: deuser
-      warehouse: dbt_wh
-  target: dev
+      account: 
+      database:
+      insecure_mode: 
+      password: 
+      role: 
+      schema: 
+      type: 
+      user: 
+      warehouse: 
+  target: 
